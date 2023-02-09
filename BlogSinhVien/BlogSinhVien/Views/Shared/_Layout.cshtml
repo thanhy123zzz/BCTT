@@ -1,0 +1,192 @@
+﻿@{
+
+	BlogSinhVienNewContext context = new BlogSinhVienNewContext();
+	Users nguoiDung = context.Users.Find(Int32.Parse(User.Identity.Name));
+}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>@ViewData["Title"]</title>
+	<link rel="icon" type="image/x-icon" href="/images/logo.png">
+	<link rel="stylesheet" type="text/css" href="~/js/jquery/datatables.css">
+	<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="~/css/site.css" />
+	<link rel="stylesheet" href="~/font-awesome/css/all.min.css">
+	<link rel="stylesheet" href="~/css/main.min.css">
+	<link rel="stylesheet" href="~/css/style.css">
+	<link rel="stylesheet" href="~/css/color.css">
+	<link rel="stylesheet" href="~/css/responsive.css">
+
+	<link rel="stylesheet" href="~/datepicker/bootstrap-datetimepicker.min.css">
+	<script src="~/js/jquery/jquery-3.6.1.min.js"></script>
+
+</head>
+
+<body>
+	@if (TempData["ThongBao"]!=null){
+	<div class="w-100 mt-5 mr-5 position-fixed" style="z-index:100;">
+		<div class="toast ml-auto" data-autohide="false">
+			<div class="toast-header">
+			  <strong class="mr-auto text-primary">Thông báo</strong>
+			  <button type="button" class="ml-2 mb-1 close" data-dismiss="toast">&times;</button>
+			</div>
+			<div class="toast-body">
+			  @TempData["ThongBao"].ToString()
+			</div>
+		  </div>
+	</div>
+	}
+	<input type="hidden" id="IdUser" value="@nguoiDung.Id"/>
+	<div class="responsive-header">
+		<div class="mh-head first Sticky" style="background: #8be594;">
+			<span class="mh-text">
+				<a href="/" title="Trang chủ">BLOG DTM</a>
+			</span>
+		</div>
+		<div class="mh-head second" style="background: #8be594;">
+			<form class="mh-form">
+				<input placeholder="search" />
+				<a href="#/" class="fa fa-search"></a>
+			</form>
+		</div>
+	</div>
+	<div class="topbar stick">
+		<div class="logo">
+			<a title="Trang chủ" href="/">
+				<b>BLOG DTM</b>
+			</a>
+		</div>
+		<div class="top-area">
+			<div class="top-search">
+				<!-- Xd note-->
+				<form method="post" action="/searchAll">
+					<input type="text" id="search" value="@ViewBag.search" name="search" placeholder="Tìm kiếm">
+					<button type="submit" onclick="checkValueSearch()" onsubmit="checkValueSearch()" data-ripple><i class="ti-search"></i></button>
+				</form>
+				<script type="text/javascript">
+				function checkValueSearch(){
+					var x = document.getElementById("search").val;
+					var xx = document.querySelector('#search').value;
+					if (x === "" || x === null || xx === "" || xx === null) {
+								event.preventDefault();
+								alert('Hãy nhập thông tin vào thanh tìm kiếm!')
+								document.getElementById("search").focus();
+							}
+				}
+				</script>
+				<!-- Xd note-->
+			</div>
+			<ul class="setting-area">
+				<li title="Trang chủ" style="cursor:pointer;" onclick="location.href='/';"><i class="ti-home">
+
+					</i>Trang Chủ</li>
+					<li title="Nhắn tin" style="cursor:pointer;" onclick="location.href='/messages';">
+						<i class="ti-comments-smiley">
+
+						</i>Nhắn tin
+					</li>
+				<li title="Bài viết cá nhân" style="cursor:pointer;" onclick="location.href='/BDCaNhan';">
+					<i class="ti-layout-width-default">
+					</i>Bài viết cá nhân
+				</li>
+				@if (User.IsInRole("VaiTro01") || User.IsInRole("VaiTro04"))
+				{
+					<li title="Quản lý" style="cursor:pointer;" onclick="location.href='/managerment';">
+						<i class="ti-user">
+
+						</i>Quản lý
+					</li>
+				}
+			</ul>
+			@* /profile/@User.FindFirst("MaSV").Value *@
+			<div onclick="location.href='/inforpersonal';" title="Cá nhân" class="user-img">
+					<img width="45px" style="max-height:45px;max-width:45px;object-fit:cover;"
+					src="~/images/avts/@nguoiDung.HinhAnh" alt="">
+			</div>
+			<div class="logo" style="width: 30px!important;">
+				<a title="Đăng xuất" href="/Login/Logout">
+					<i class="ti-power-off"></i>
+				</a>
+			</div>
+		</div>
+
+	</div>
+	<div class="fixed-sidebar right">
+		<div class="chat-friendz">
+		</div>
+	</div>
+	<div class="fixed-sidebar left">
+		<div class="menu-left">
+			<ul class="left-menu">
+				<li><a href="/" title="Trang chủ" data-toggle="tooltip" data-placement="right"><i
+							class="ti-home"></i></a></li>
+				<li><a href="/BDCaNhan" title="Bài viết cá nhân" data-toggle="tooltip" data-placement="right"><i
+							class="ti-layout-width-default"></i></a></li>
+				<li><a href="/messages" title="Nhắn tin" data-toggle="tooltip" data-placement="right"><i
+							class="ti-comments-smiley"></i></a></li>
+				@if (User.IsInRole("VaiTro01") || User.IsInRole("VaiTro04"))
+				{
+				<li><a href="/managerment" title="Quản lý" data-toggle="tooltip" data-placement="right"><i
+							class="ti-user"></i></a></li>
+				}
+			</ul>
+		</div>
+	</div>
+	<section>
+		@RenderBody()
+	</section>
+	<div id="imageModal" class="imageModal">
+	  <span class="closeImageModal">&times;</span>
+	  <img class="imageModal-content" id="imageHHModal">
+	  <div id="imageModelCaption"></div>
+	</div>
+	<script src="~/datepicker/popper.min.js"></script>
+	<script src="~/datepicker/moment.min.js"></script>
+	<script src="~/datepicker/bootstrap-datetimepicker.min.js"></script>
+	<script src="~/js/script.js"></script>
+	<script src="~/js/map-init.js"></script>
+	
+	<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+	
+	<script src="~/js/trangchu.js"></script>
+	<script src="~/js/site.js" asp-append-version="true"></script>
+
+	<script type="text/javascript" charset="utf8"
+		src="~/js/jquery/datatables.min.js"></script>
+	@RenderSection("Scripts", required: false)
+
+	<script>
+		$('.toast').toast('show');
+		$(document).ready(function () {
+		   $('.form-date').datetimepicker({
+			locale: 'vi',
+			useStrict: true,
+			format: "DD-MM-yyyy",
+		});
+		});
+		// Get the modal
+		var modal = document.getElementById("imageModal");
+
+		// Get the image and insert it inside the modal - use its "alt" text as a caption
+		var modalImg = document.getElementById("imageHHModal");
+		var captionText = document.getElementById("imageModelCaption");
+		function show_image(Id){
+			var img = document.getElementById("image_BD_"+Id);
+			modal.style.display = "block";
+			  modalImg.src = img.src;
+			  captionText.innerHTML = img.alt;
+		}
+			// Get the <span> element that closes the modal
+			var span = document.getElementsByClassName("closeImageModal")[0];
+
+			// When the user clicks on <span> (x), close the modal
+			span.onclick = function() { 
+			  modal.style.display = "none";
+			}
+	</script>
+</body>
+
+</html>
